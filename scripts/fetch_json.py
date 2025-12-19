@@ -1,12 +1,14 @@
 import os
+import re
 import shutil
 import argparse
-from pathlib import Path
-import re
 import subprocess
+from pathlib import Path
+
 import semantic_version
 from git import Repo
 from loguru import logger
+from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from utils import RichCloneProgress, run_process_with_progress, ensure_directories
 
@@ -48,17 +50,37 @@ def get_pinned_rust_version(repo_dir: Path) -> str | None:
     
     return None
 
+def is_toolchain_installed(version: str) -> bool:
+    if not version: return False
+    try:
+        result = subprocess.run(
+            ["rustup", "toolchain", "list"], 
+            capture_output=True, 
+            text=True, 
+            check=True
+        )
+        return any(line.startswith(version) for line in result.stdout.splitlines())
+    except subprocess.CalledProcessError:
+        return False
+    
 def manage_toolchain(version: str, action: str):
     if not version or version == "stable":
         return
 
     cmd = ["rustup", "toolchain", action, version]
     if action == "install":
-        cmd.append("--no-self-update") 
-        
+        cmd.extend(["--profile", "minimal", "--no-self-update"])
+    
     logger.info(f"Rustup: {action} {version}...")
-    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
-
+    
+    try:
+        subprocess.run(
+            cmd, 
+            check=True,
+        )
+        logger.success(f"Rust {version} {action}ed successfully")
+    except subprocess.CalledProcessError:
+        logger.error(f"Failed to {action} toolchain {version}")
 
 def get_typst_repo(typst_dir: Path) -> Repo:
     REPO_URL = "https://github.com/typst/typst.git"
@@ -112,8 +134,8 @@ def get_typst_tags(repo: Repo, min_version: str = MINIMAL_TYPST_VERSION) -> list
     return sorted_tag_names
 
 
-def should_build(target_version: str, data_dir: Path, assets_dir: Path):
-    json_exists = (data_dir / f"docs_{target_version}.json").exists()
+def should_build(target_version: str, output_dir: Path, assets_dir: Path):
+    json_exists = (output_dir / f"docs_{target_version}.json").exists()
     assets_exist = (assets_dir / target_version).exists()
     if not json_exists or not assets_exist:
         return True
@@ -126,7 +148,7 @@ def build_json_for_ref(
     ref_name: str,
     build_dir: Path,
     assets_dir: Path,
-    data_dir: Path,
+    output_dir: Path,
     output_filename: str,
 ):
     logger.info(f"Generating JSON for Typst Docs ({ref_name})")
@@ -139,7 +161,7 @@ def build_json_for_ref(
         return
 
     typst_dir = build_dir / "typst"
-    json_path = data_dir / output_filename
+    json_path = output_dir / output_filename
     
     cmd = [
         "cargo", "run", 
@@ -170,9 +192,17 @@ def build_json_for_ref(
         logger.error(f"No pinned Rust version found, skipping build")
         return
     
+    toolchain_was_installed = is_toolchain_installed(required_version)
+    installed_by_us = False
+    
     logger.info(f"Detected required Rust version: {required_version}")
     try:
-        manage_toolchain(required_version, "install")
+        if not toolchain_was_installed:
+            logger.info(f"Toolchain {required_version} not found. Installing...")
+            manage_toolchain(required_version, "install")
+            installed_by_us = True
+        else:
+            logger.info(f"Toolchain {required_version} is already installed. Using it.")
 
         specific_cmd = list(cmd)
         specific_cmd.insert(1, f"+{required_version}")
@@ -186,7 +216,7 @@ def build_json_for_ref(
             logger.error(f"Build failed for {ref_name} with pinned Rust, skipping generation")
             return
     finally:
-        if required_version != "stable":
+        if installed_by_us and required_version != "stable":
             manage_toolchain(required_version, "uninstall")
     
     logger.success(f"Build successful for {ref_name} (Pinned Rust)")
@@ -209,7 +239,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    ensure_directories([args.build_dir, args.data_dir, args.assets_dir])
+    ensure_directories([args.build_dir, args.output_dir, args.assets_dir])
 
     typst_dir = args.build_dir / "typst"
     
@@ -234,7 +264,7 @@ def main():
         logger.warning("No versions found to build")
         exit(0)
 
-    filtered = list(filter(lambda version: should_build(version, args.data_dir, args.assets_dir), json_targets))
+    filtered = list(filter(lambda version: should_build(version, args.output_dir, args.assets_dir), json_targets))
     if filtered != json_targets:
         logger.info(f"Filtered out {len(json_targets) - len(filtered)} versions: {', '.join(filtered)}")
         json_targets = filtered
@@ -249,7 +279,7 @@ def main():
             ref_name=ref,
             build_dir=args.build_dir,
             output_filename=f"docs_{ref}.json",
-            data_dir=args.data_dir,
+            output_dir=args.output_dir,
             assets_dir=assets_dir
         )
         results.append(json_path)
