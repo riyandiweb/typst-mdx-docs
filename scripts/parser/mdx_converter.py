@@ -37,6 +37,7 @@ def render_generic(details: Union[str, list, dict]) -> str:
     return ""
 
 def render_type_table(params: list[dict]) -> str:
+    # TODO: Replace with simple headings (or rewrite component to support mdx inside)
     if not params:
         return ""
     

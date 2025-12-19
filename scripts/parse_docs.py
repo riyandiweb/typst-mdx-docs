@@ -8,7 +8,8 @@ from loguru import logger
 from parser.mdx_converter import generate_mdx_docs
 from utils import ensure_directories
 
-DEFAULT_DATA_DIR = Path("data")
+DEFAULT_BUILD_DIR = Path("build")
+DEFAULT_RAW_DOCS_DIR = DEFAULT_BUILD_DIR / "raw-docs"
 DEFAULT_OUTPUT_DIR = Path("dist")
 
 def build_docs_for_version(version: str, data_dir: Path, output_dir: Path, enable_i18n: bool = False, json_slug: str = "docs"):
@@ -36,7 +37,7 @@ def build_docs_for_version(version: str, data_dir: Path, output_dir: Path, enabl
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Typst Docs to MDX Converter CLI")
-    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="JSON output data directory")
+    parser.add_argument("--data-dir", type=Path, default=DEFAULT_RAW_DOCS_DIR, help="JSON output data directory")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR, help="Output directory")
     parser.add_argument("--enable-i18n", action="store_true", help="Enable i18n")
     parser.add_argument("--version", type=str, help="Version to build")

@@ -19,7 +19,7 @@ else:
 MINIMAL_TYPST_VERSION = "0.11.0" # Minimal Typst version with JSON docs
 
 DEFAULT_BUILD_DIR = Path("build")
-DEFAULT_DATA_DIR = Path("data")
+DEFAULT_OUTPUT_DIR = DEFAULT_BUILD_DIR / "raw-docs"
 DEFAULT_ASSETS_DIR = DEFAULT_BUILD_DIR / "assets"
 
 def get_pinned_rust_version(repo_dir: Path) -> str | None:
@@ -196,7 +196,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Typst Docs JSON builder CLI")
     
     parser.add_argument("--build-dir", type=Path, default=DEFAULT_BUILD_DIR, help="Build artifacts directory")
-    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="JSON output data directory")
+    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR, help="JSON output data directory")
     parser.add_argument("--assets-dir", type=Path, default=DEFAULT_ASSETS_DIR, help="Assets output directory")
     parser.add_argument("--force", action="store_true", help="Force rebuild JSON files")
     
